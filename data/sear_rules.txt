@@ -1,0 +1,13 @@
+What tag:VBZ => What's
+What tag:NOUN => Which tag:NOUN
+What tag:VERB => So what tag:VERB
+What tag:VBD => And what tag:VBD
+In what => What
+tag:WP is => tag:WP 's
+tag:WP 's tag:WP is
+When did => When was
+? => ??
+? => [empty]
+a => an
+an => a
+

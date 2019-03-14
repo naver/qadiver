@@ -1,0 +1,10 @@
+toy_model/checkpoint/*
+toy_model/.vector_cache/*
+dev_embedding_0.txt
+toy_model/data/vectors/glove.*.txt
+toy_model/data/glove.*.txt
+__pycache__/
+sentence/__pycache__/
+*.ipynb
+.ipynb_checkpoints
+

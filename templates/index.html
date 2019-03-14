@@ -1,0 +1,272 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAAI Demo</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="files/style.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar sticky-top navbar-expand-lg navbar-dark bar-color">
+        <div class="top-menu">
+            <div id="title-area" class="left-width top-element"> <a class="navbar-brand navbar-title" href="./">QADiver</a> </div>
+            <!--<div id="minfo-area" class="top-element"> Model: EM 68.5 / F1 71.3 / NoAns ACC 0.771 (thres 0.05)</div>-->
+            <div id="minfo-area" class="top-element">Model: {{ model_info }}</div>
+            <!--<div id="btn-setting-area" class="top-element"> <button id="btn-setting" type="button" class="btn btn btn-outline-light float-right">Settings</button> </div>-->
+        </div>
+    </nav>
+    <div id="sidebar-wrapper" class="sidebar-toggle">
+        <div id="sidebar-search" class="sidebar-box input-group"> <input type="text" class="form-control" placeholder="Search by ID or keyword..." /> </div>
+        <div id="sidebar-status" class="sidebar-box">
+			<span id="sidebar-status-text"></span> 
+			<div>
+				<img id="sidebar-bookmark-btn" class="sidebar-btn" src="files/bookmark_icon.png"/>
+				<img id="sidebar-filter-btn" class="sidebar-btn" src="files/filter_icon.png" data-toggle="modal" data-target="#modal-filter" />
+				<img id="sidebar-refresh-btn" class="sidebar-btn" src="files/refresh_icon.png"/>
+			</div>
+		</div>
+        <ul id="sidebar-id-list" class="sidebar-nav"> </ul>
+    </div>
+	<div id="view-init">
+		<div id="view-init-title">QADiver: Interactive Framework for Diagnosing QA Models</div>
+		<div id="view-init-sub">← select instance from the left sidebar</div>
+				
+		<iframe id="view-init-video" width="800" height="480" src="https://www.youtube.com/embed/V6c8nls6Qcc?rel=0" frameborder="0" allow="encrypted-media" allowfullscreen></iframe>
+	</div>
+
+	<div id="expand-bar" class="row" state="0">
+		<div id="expand-down" class="expand-btn col-6">▼</div>
+		<div id="expand-up" class="expand-btn col-6">▲</div>
+	</div>
+
+    <div id="view-wrapper">
+        <div id="view-head">
+			 <div id="view-head-bookmark"><img id="bookmark_stat" class="bookmark-btn" src="files/head_b_off.png"/></div>
+            <div id="view-head-text"></div>
+            <div id="view-head-func">
+                <div id="view-head-btn-ppr" class="view-head-btn" data-toggle="tooltip" data-placement="top" title="show preprocessed text">P</div>
+                <div id="view-head-btn-oov" class="view-head-btn active" data-toggle="tooltip" data-placement="top" title="mark OOV words">O</div>
+                <div id="view-head-btn-answer" class="view-head-btn active" data-toggle="tooltip" data-placement="top" title="highlights on the answer">Ans</div>
+                <!--<div id="view-head-btn-att" class="view-head-btn">Att</div>-->
+                <!--<div id="view-head-btn-eval" class="view-head-btn play">▶</div>-->
+            </div>
+        </div>
+        <div id="view-context"></div>
+        <div id="view-qa">
+            <div class="row">
+                <div class="col-1 text-center view-qa-head">Question</div>
+                <div id="s_question" class="col-8 view-qa-text"></div>
+				<div class="col-1 text-center view-qa-head">EM/F1</div>
+                <div id="s_em_f1" class="col-2 view-qa-text"></div>
+            </div>
+            <div class="row">
+                <div class="col-1 text-center view-qa-head">Prediction</div>
+                <div id="s_answer_pred" class="col-5 view-qa-text"></div>
+                <div class="col-1 text-center view-qa-head">Answer</div>
+                <div id="s_answer_gold" class="col-5 view-qa-text"></div>
+            </div>
+        </div>
+    </div>
+    <div id="tool-wrapper">
+        <ul id="tool-menu" class="nav nav-pills nav-fill">
+            <li class="nav-item">
+                <div class="nav-link">Embedding</div>
+            </li>
+            <li class="nav-item">
+                <div class="nav-link">Attention</div>
+            </li>
+            <li class="nav-item">
+                <div class="nav-link">Model Output</div>
+            </li>
+            <li class="nav-item">
+                <div class="nav-link">Similar Questions</div>
+            </li>
+            <li class="nav-item">
+                <div class="nav-link">Adversarial Test</div>
+            </li>
+        </ul>
+        <div id="tool-embedding" class="tool-content">
+            <div id="tool-em-title" class="tool-title large">select word in context or question (alt key: compare two words)</div>
+            <div id="tool-em-content">
+                <div id="tool-em-info">
+                    <div id="tool-em-info-vis" class="tool-em-info-wrapper">
+                        <div class="tool-subtitle">Embedding Visualization</div>
+                        <div id="tool-em-vector-vis"></div>
+                    </div>
+                    <div id="tool-em-info-simlist" class="tool-em-info-wrapper">
+                        <div class="tool-subtitle">Similar words in the embedding space</div>
+                        <div class="custom-control custom-checkbox"> <input type="checkbox" class="custom-control-input" id="tool-em-contextonly"> <label class="custom-control-label" for="tool-em-contextonly">Restrict to words in context and question</label> </div>
+                        <ul id="tool-em-sim-list" class="nav nav-pills"></ul>
+                    </div>
+                    <div id="tool-em-info-simpair" class="tool-em-info-wrapper">
+                        <div class="tool-subtitle">Cosine Similairty</div>
+                        <div id="tool-em-simpair-result"></div>
+                    </div>
+                </div>
+                <div id="tool-em-space-vis"></div>
+            </div>
+        </div>
+        <div id="tool-attention" class="tool-content">
+			<div class="att-function-list">
+				<div id="tool-att-loading"></div>
+				<div id="tool-att-function">
+					<div id="tool-att-reset" class="att-function">Reset</div>
+					<div id="tool-att-save" class="att-function">Export Current Attention Map</div>
+				</div>
+			</div>
+			<div id="tool-att-weight"></div>
+		</div>
+        <div id="tool-modeloutput" class="tool-content">
+			<div id="tool-mo-content" class="row">
+				<div id="tool-mo-start-prob" class="tool-mo-section col-3">
+					<div class="tool-mo-section-title tool-subtitle">Start Probability</div>
+					<ul id="tool-mo-sp-list" class="tool-mo-item-list"></ul>
+				</div>
+				<div id="tool-mo-end-prob" class="tool-mo-section col-3">
+					<div class="tool-mo-section-title tool-subtitle">End Probability</div>
+					<ul id="tool-mo-ep-list" class="tool-mo-item-list"></ul>
+				</div>
+				<div id="tool-mo-span-prob" class="tool-mo-section col-6">
+					<div class="tool-mo-section-title tool-subtitle">Span Prediction Result (length&lt;15)</div>
+					<ul id="tool-mo-span-list" class="tool-mo-item-list"></ul>
+				</div>
+			</div>
+        </div>
+        <div id="tool-simquestion" class="tool-content">
+            <div id="tool-sq-title" class="tool-title large">
+				<div id="tool-sq-title-msg">Result: </div>
+				<div id="tool-sq-tosidebar" class="sq-function">load result to sidebar</div>
+			</div>
+            <div id="tool-sq-info" class="tool-infoline">Total 49</div>
+			 <div id="tool-sq-content">
+                <ul id="tool-sq-list"></ul>
+            </div>
+            
+        </div>
+        <div id="tool-adversarial" class="tool-content">
+            <div id="tool-adv-content">
+                <div id="tool-adv-option">
+                    <div class="tool-subtitle">Rule-based Adversarial Test</div>
+					<div class="tool-description">These rules are applied to the question. <span id="tool-adv-show-format" class="text-btn" data-toggle="modal" data-target="#modal-advrule-help" >[format]</span></label> </div>
+                    <div id="tool-adv-option-area" class="form-group">
+                        <div class="tool-adv-radio-area">
+                            <div class="custom-control custom-radio"> <input type="radio" id="tool-adv-option-sear" name="advoption" class="custom-control-input" value="0" checked> <label class="custom-control-label" for="tool-adv-option-sear">Use predefined rules</label> </div>
+                            <div class="custom-control custom-radio"> <input type="radio" id="tool-adv-option-custom" name="advoption" class="custom-control-input" value="1"> <label class="custom-control-label" for="tool-adv-option-custom">Use custom rules</div>
+                        </div> <textarea class="form-control" id="tool-adv-customrules" name="advcustomrule" disabled></textarea>
+                    </div>
+                    <hr /> <button id="tool-adv-run" class="btn btn-primary float-right">RUN</button>
+                </div>
+                <div id="tool-adv-result">
+					<div id="tool-adv-info" class="tool-infoline">Click RUN to do adversarial test</div>
+					<div id="tool-adv-list-head" class="row">
+						<div class="adv-rule-head col-4">Rule</div>
+						<div class="adv-rule-head col-4">Answer</div>
+						<div class="adv-rule-head col-2">EM/F1</div>
+						<div class="adv-rule-head col-2">UA PRED</div>
+						
+					</div>
+					<ul id="tool-adv-list" class="tool-adv-item-list"></ul>
+				
+				</div>
+                <div id="tool-sq-content"></div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-filter" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog bottom" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Data Filter</h5> <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-filter-label" class="modal-option">
+                        <div class="modal-option-head">Label</div>
+                        <div class="modal-option-body">
+                            <div class="custom-control custom-checkbox modal-option-checkbox positive"> <input type="checkbox" class="custom-control-input" id="modal-filter-label-true"> <label class="custom-control-label" for="modal-filter-label-true" checked>Answerable</label> </div>
+                            <div class="custom-control custom-checkbox modal-option-checkbox negative"> <input type="checkbox" class="custom-control-input" id="modal-filter-label-false"> <label class="custom-control-label" for="modal-filter-label-false" checked>Unanswerable</label> </div>
+                        </div>
+                    </div>
+                    <div id="modal-filter-pred" class="modal-option">
+                        <div class="modal-option-head">Prediction</div>
+                        <div class="modal-option-body">
+                            <div class="custom-control custom-checkbox modal-option-checkbox positive"> <input type="checkbox" class="custom-control-input" id="modal-filter-pred-true"> <label class="custom-control-label" for="modal-filter-pred-true" checked>TRUE</label> </div>
+                            <div class="custom-control custom-checkbox modal-option-checkbox negative"> <input type="checkbox" class="custom-control-input" id="modal-filter-pred-false"> <label class="custom-control-label" for="modal-filter-pred-false" checked>FALSE</label> </div>
+                        </div>
+                    </div>
+                    <div id="modal-filter-prob" class="modal-option">
+                        <div class="modal-option-head">Prob Expr</div>
+                        <div class="modal-option-body"> <input id="modal-filter-prob-expr" type="text" class="form-control" placeholder="ex) (X >= 0.5) | (X <= 0.4)" /> </div>
+                    </div>
+                    <div id="modal-filter-limit" class="modal-option">
+                        <div class="modal-option-head"># of item</div>
+                        <div class="modal-option-body"> <input id="modal-filter-limit-value" type="number" class="form-control" placeholder="1000" value="1000" /> </div>
+                    </div>
+					<div id="modal-filter-random" class="modal-option">
+                        <div class="modal-option-head">Shuffle</div>
+                        <div class="modal-option-body">
+                            <div class="custom-control custom-checkbox modal-option-checkbox"> <input type="checkbox" class="custom-control-input" id="modal-filter-shuffle"> <label class="custom-control-label" for="modal-filter-shuffle" checked></label> </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"> <button type="button" id="modal-filter-apply-btn" class="btn btn-primary">Apply</button> <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-edit" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Word</h5> <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-edit-text">Change word <span id="modal-edit-target">???</span> to:</div>
+                    <div id="modal-edit-input" class="modal-option"> 
+							<input id="modal-edit-new" type="text" class="form-control" placeholder="" />
+							<input id="modal-edit-src" type="hidden" value="" />							
+							<input id="modal-edit-idx" type="hidden" value="" />							
+					  </div>
+                </div>
+                <div class="modal-footer"> <button id="modal-edit-apply-btn" type="button" class="btn btn-primary">Apply</button> <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> </div>
+            </div>
+        </div>
+    </div>
+	
+	<div id="modal-advrule-help" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog bottom" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adversarial Rule Format</h5> <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                </div>
+                <div class="modal-body">
+                    <h5>Syntax</h5>
+					<p><code>[before1] => [after1]</code><br/><code>[before2] => [after2]</code><br/><code>...</code></p>
+					<p>each rule must be in single line and contain <code>=></code> as divider.<br/>
+					If you want make <code>[after]</code> to empty string, use <code>[empty]</code>.</p>
+					<p>Token can be the <strong>word</strong> (case-sensitive) or <strong>part-of-speech (POS) tag</strong>.<br/>
+					For POS tag, you must specify that by adding <code>tag:</code> prefix. (example: <code>tag:NN</code>)<br/>
+					The list of available POS tags can be found in <a target="_blank" href="https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html">here</a>.</p>
+
+					<h5>Aliases</h5>
+					<p>
+					- <code>tag:NN</code>, <code>tag:NNS</code>, ... can be replaced with <code>tag:NOUN</code><br/>
+					- <code>tag:VB</code>, <code>tag:VBN</code>, ... can be replaced with <code>tag:VERB</code>
+					</p>
+
+                </div>
+                <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> </div>
+            </div>
+        </div>
+    </div>
+	
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="files/script.js"></script>
+</body>
+
+</html>

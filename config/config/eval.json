@@ -1,0 +1,8 @@
+{
+    "data_path": "data/dev-v2.0.json",
+    "pred_path": "toy_model/pred.json",
+    "no_prob_path": "toy_model/no_prob.json",
+    "na_threshold": 0.05162585526704788,
+
+    "output": "toy_model/eval_result.json"
+}

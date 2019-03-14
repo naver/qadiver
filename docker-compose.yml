@@ -1,0 +1,7 @@
+app:
+  image: dsksd/qadiver:0.2
+  ports:
+    - "8080:8080"
+  volumes:
+    - ../:/app
+  tty: true

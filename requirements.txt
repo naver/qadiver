@@ -1,0 +1,12 @@
+nltk
+numexpr
+numpy
+Flask_Cors
+Flask
+tqdm
+faiss==1.4.0
+tornado
+scikit_learn>=0.19
+torch>=0.4.0
+allennlp
+matplotlib

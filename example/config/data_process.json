@@ -1,0 +1,10 @@
+{
+    "filename": "data/dev-v2.0.json",
+    "output_path": "data/processed_data.json",
+
+    "model_name": "DocQA",
+    "checkpoint_path": "toy_model/checkpoint/docqa.bin",
+
+    "extract_vocab": 1,
+    "vocab_output": "data/embedding.txt"
+}

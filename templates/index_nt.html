@@ -1,0 +1,118 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAAI Demo</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="files/style.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar sticky-top navbar-expand-lg navbar-dark bar-color">
+        <div class="top-menu">
+            <div id="title-area" class="left-width top-element"> <a class="navbar-brand navbar-title" href="./">QADiver</a> </div>
+            <!--<div id="minfo-area" class="top-element"> Model: EM 68.5 / F1 71.3 / NoAns ACC 0.771 (thres 0.05)</div>-->
+            <div id="minfo-area" class="top-element">Model: {{ model_info }}</div>
+            <!--<div id="btn-setting-area" class="top-element"> <button id="btn-setting" type="button" class="btn btn btn-outline-light float-right">Settings</button> </div>-->
+        </div>
+    </nav>
+    <div id="sidebar-wrapper" class="sidebar-toggle">
+        <div id="sidebar-search" class="sidebar-box input-group"> <input type="text" class="form-control" placeholder="Search by ID or keyword..." /> </div>
+        <div id="sidebar-status" class="sidebar-box">
+			<span id="sidebar-status-text"></span> 
+			<div>
+				<img id="sidebar-bookmark-btn" class="sidebar-btn" src="files/bookmark_icon.png"/>
+				<img id="sidebar-filter-btn" class="sidebar-btn" src="files/filter_icon.png" data-toggle="modal" data-target="#modal-filter" />
+				<img id="sidebar-refresh-btn" class="sidebar-btn" src="files/refresh_icon.png"/>
+			</div>
+		</div>
+        <ul id="sidebar-id-list" class="sidebar-nav"> </ul>
+    </div>
+	<div id="view-init">
+		<div id="view-init-title">QADiver: Interactive Framework for Diagnosing QA Models</div>
+		<div id="view-init-sub">← select instance from the left sidebar</div>
+				
+		<iframe id="view-init-video" width="800" height="480" src="https://www.youtube.com/embed/V6c8nls6Qcc?rel=0" frameborder="0" allow="encrypted-media" allowfullscreen></iframe>
+	</div>
+
+    <div id="view-wrapper" class="view-full">
+        <div id="view-head">
+			 <div id="view-head-bookmark"><img id="bookmark_stat" class="bookmark-btn" src="files/head_b_off.png"/></div>
+            <div id="view-head-text"></div>
+            <div id="view-head-func">
+                <div id="view-head-btn-none" class="view-head-btn d-none"></div>
+                <div id="view-head-btn-oov" class="view-head-btn active" data-toggle="tooltip" data-placement="top" title="mark OOV words">O</div>
+                <div id="view-head-btn-answer" class="view-head-btn active" data-toggle="tooltip" data-placement="top" title="highlights on the answer">Ans</div>
+                <!--<div id="view-head-btn-att" class="view-head-btn">Att</div>-->
+                <!--<div id="view-head-btn-eval" class="view-head-btn play">▶</div>-->
+            </div>
+        </div>
+        <div id="view-context" class="view-context-full"></div>
+        <div id="view-qa" class="view-qa-full">
+            <div class="row">
+                <div class="col-1 text-center view-qa-head">Question</div>
+                <div id="s_question" class="col-8 view-qa-text"></div>
+				<div class="col-1 text-center view-qa-head">EM/F1</div>
+                <div id="s_em_f1" class="col-2 view-qa-text"></div>
+            </div>
+            <div class="row">
+                <div class="col-1 text-center view-qa-head">Prediction</div>
+                <div id="s_answer_pred" class="col-5 view-qa-text"></div>
+                <div class="col-1 text-center view-qa-head">Answer</div>
+                <div id="s_answer_gold" class="col-5 view-qa-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-filter" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog bottom" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Data Filter</h5> <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-filter-label" class="modal-option">
+                        <div class="modal-option-head">Label</div>
+                        <div class="modal-option-body">
+                            <div class="custom-control custom-checkbox modal-option-checkbox positive"> <input type="checkbox" class="custom-control-input" id="modal-filter-label-true"> <label class="custom-control-label" for="modal-filter-label-true" checked>Answerable</label> </div>
+                            <div class="custom-control custom-checkbox modal-option-checkbox negative"> <input type="checkbox" class="custom-control-input" id="modal-filter-label-false"> <label class="custom-control-label" for="modal-filter-label-false" checked>Unanswerable</label> </div>
+                        </div>
+                    </div>
+                    <div id="modal-filter-pred" class="modal-option">
+                        <div class="modal-option-head">Prediction</div>
+                        <div class="modal-option-body">
+                            <div class="custom-control custom-checkbox modal-option-checkbox positive"> <input type="checkbox" class="custom-control-input" id="modal-filter-pred-true"> <label class="custom-control-label" for="modal-filter-pred-true" checked>TRUE</label> </div>
+                            <div class="custom-control custom-checkbox modal-option-checkbox negative"> <input type="checkbox" class="custom-control-input" id="modal-filter-pred-false"> <label class="custom-control-label" for="modal-filter-pred-false" checked>FALSE</label> </div>
+                        </div>
+                    </div>
+                    <div id="modal-filter-prob" class="modal-option">
+                        <div class="modal-option-head">Prob Expr</div>
+                        <div class="modal-option-body"> <input id="modal-filter-prob-expr" type="text" class="form-control" placeholder="ex) (X >= 0.5) | (X <= 0.4)" /> </div>
+                    </div>
+                    <div id="modal-filter-limit" class="modal-option">
+                        <div class="modal-option-head"># of item</div>
+                        <div class="modal-option-body"> <input id="modal-filter-limit-value" type="number" class="form-control" placeholder="1000" value="1000" /> </div>
+                    </div>
+                    <div id="modal-filter-random" class="modal-option">
+                        <div class="modal-option-head">Shuffle</div>
+                        <div class="modal-option-body">
+                            <div class="custom-control custom-checkbox modal-option-checkbox"> <input type="checkbox" class="custom-control-input" id="modal-filter-shuffle"> <label class="custom-control-label" for="modal-filter-shuffle" checked></label> </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"> <button type="button" id="modal-filter-apply-btn" class="btn btn-primary">Apply</button> <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="files/script.js"></script>
+</body>
+
+</html>

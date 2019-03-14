@@ -1,0 +1,6 @@
+{
+    "cache_path": "cache/qa_cache.db",
+    "data_path": "data/processed_data.json",
+    "pred_path": "toy_model/pred.json",
+    "no_prob_path": "toy_model/no_prob.json"
+}

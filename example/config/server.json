@@ -1,0 +1,16 @@
+{
+    "data_path": "data/processed_data.json",
+    "vocab_path": "data/vocab.json",
+    "embedding_path": "data/embedding.txt",
+    "evaluation_result": "toy_model/eval_result.json",
+
+    "model_name": "DocQA",
+    "checkpoint_path": "toy_model/checkpoint/docqa.bin",
+    "cache_path": "cache/qa_cache.db",
+    
+    "use_tools": 1,
+    "sim_sent_num": 50,
+    "adversarial_rule_path": "data/sear_rules.txt",
+
+    "port": 8080
+}
